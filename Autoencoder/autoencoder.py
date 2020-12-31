@@ -68,5 +68,4 @@ for im_ind in range(num_images_to_show):
     matplotlib.pyplot.subplot(num_images_to_show, 2, plot_ind+1)
     matplotlib.pyplot.imshow(decoded_images_orig[rand_ind, :, :], cmap="gray")
 
-
 matplotlib.pyplot.show()
