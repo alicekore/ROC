@@ -28,7 +28,7 @@ def createPic(size, spec, shape=(100, 100)):
 
 # Create field and save as txt file (one line - one field)
 def createText(size, spec, shape=(100, 100)):
-    file_name = 'Data Set/Spectrum' + str(spec) + '.txt'
+    file_name = 'Data Set/Spectrum' + str(spec) + '.txt' # Set the correct path!
     file = open(file_name, "a+")
     for i in range(size):
         field = generate_field(distrib, Pkgen(spec), shape)
@@ -42,5 +42,14 @@ def createText(size, spec, shape=(100, 100)):
 
 
 if __name__ == "__main__":
-    createText(5000, 4)
+    createText(5000, 1)
+    createText(5000, 2)
+    # createText(5000, 3)
+    # createText(5000, 4)
+    createText(5000, 5)
+    createText(5000, 6)
+    createText(5000, 7)
+    createText(5000, 8)
+    createText(5000, 9)
+    createText(5000, 10)
 
