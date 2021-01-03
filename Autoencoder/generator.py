@@ -1,6 +1,7 @@
 from FyeldGenerator import generate_field
 import matplotlib.pyplot as plt
 import numpy as np
+import codecs, json
 np.set_printoptions(threshold=np.inf)
 
 # Helper that generates power-law power spectrum
@@ -10,13 +11,13 @@ def Pkgen(n):
     return Pk
 
 
-# Draw samples from a normal distribution
+# Draws samples from a normal distribution
 def distrib(shape):
     a = np.random.normal(loc=0, scale=1, size=shape)
     b = np.random.normal(loc=0, scale=1, size=shape)
     return a + 1j * b
 
-# Create field and save as tiff file
+# Creates fields and saves them as tiff files
 def createPic(size, spec, shape=(100, 100)):
     for i in range(size):
         field = generate_field(distrib, Pkgen(spec), shape)
@@ -26,26 +27,22 @@ def createPic(size, spec, shape=(100, 100)):
         plt.savefig(path, bbox_inches='tight', transparent=True, pad_inches=0)
         print('Done: ' + str(i))
 
-# Create field and save as txt file (one line - one field)
+# Creates fields and saves them in json file
 def createText(size, spec, shape=(100, 100)):
-    file_name = 'Data Set/Spectrum' + str(spec) + '.txt' # Set the correct path!
-    file = open(file_name, "a+")
+    file_name = 'Data Set/Spectrum' + str(spec) + '.json' # Set the correct path!
+    origs = np.empty((size, shape[0], shape[1]))
     for i in range(size):
         field = generate_field(distrib, Pkgen(spec), shape)
-        field_text =str(field).replace('\n', '')
-        file.write(field_text + '\n')
+        origs[i] = field
         print('Done:' + str(i))
-    file.close()
-
-
-
-
+    set = origs.tolist() # nested lists with same data, indices
+    json.dump(set, codecs.open(file_name, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
 
 if __name__ == "__main__":
     createText(5000, 1)
     createText(5000, 2)
-    # createText(5000, 3)
-    # createText(5000, 4)
+    createText(5000, 3)
+    createText(5000, 4)
     createText(5000, 5)
     createText(5000, 6)
     createText(5000, 7)
