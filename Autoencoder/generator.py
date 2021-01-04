@@ -2,7 +2,11 @@ from FyeldGenerator import generate_field
 import matplotlib.pyplot as plt
 import numpy as np
 import codecs, json
+import random
 np.set_printoptions(threshold=np.inf)
+NOISE = [1, 2]
+CLOUDS = [3, 4, 5, 6]
+BUBBLES = [7, 8, 9, 10]
 
 # Helper that generates power-law power spectrum
 def Pkgen(n):
@@ -29,24 +33,16 @@ def createPic(size, spec, shape=(100, 100)):
 
 # Creates fields and saves them in json file
 def createText(size, spec, shape=(100, 100)):
-    file_name = 'Data Set/Spectrum' + str(spec) + '.json' # Set the correct path!
+    file_name = 'Data Set/Bubbles' + '.json' # Set the correct path!
     origs = np.empty((size, shape[0], shape[1]))
     for i in range(size):
-        field = generate_field(distrib, Pkgen(spec), shape)
+        field = generate_field(distrib, Pkgen(random.choice(spec)), shape)
         origs[i] = field
         print('Done:' + str(i))
     set = origs.tolist() # nested lists with same data, indices
     json.dump(set, codecs.open(file_name, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
 
 if __name__ == "__main__":
-    createText(5000, 1)
-    createText(5000, 2)
-    createText(5000, 3)
-    createText(5000, 4)
-    createText(5000, 5)
-    createText(5000, 6)
-    createText(5000, 7)
-    createText(5000, 8)
-    createText(5000, 9)
-    createText(5000, 10)
+    createText(10000, BUBBLES)
+
 
