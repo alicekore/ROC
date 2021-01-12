@@ -23,19 +23,19 @@ def getDataSet():
 def autoencoder():
     x = tensorflow.keras.layers.Input(shape=(10000), name="encoder_input")
 
-    encoder_dense_layer1 = tensorflow.keras.layers.Dense(units=300, name="encoder_dense_1")(x)
+    encoder_dense_layer1 = tensorflow.keras.layers.Dense(units=5000, name="encoder_dense_1")(x)
     encoder_activ_layer1 = tensorflow.keras.layers.LeakyReLU(name="encoder_leakyrelu_1")(encoder_dense_layer1)
 
-    encoder_dense_layer2 = tensorflow.keras.layers.Dense(units=2, name="encoder_dense_2")(encoder_activ_layer1)
+    encoder_dense_layer2 = tensorflow.keras.layers.Dense(units=1000, name="encoder_dense_2")(encoder_activ_layer1)
     encoder_output = tensorflow.keras.layers.LeakyReLU(name="encoder_output")(encoder_dense_layer2)
 
     encoder = tensorflow.keras.models.Model(x, encoder_output, name="encoder_model")
     # encoder.summary()
 
 
-    decoder_input = tensorflow.keras.layers.Input(shape=(2), name="decoder_input")
+    decoder_input = tensorflow.keras.layers.Input(shape=(1000), name="decoder_input")
 
-    decoder_dense_layer1 = tensorflow.keras.layers.Dense(units=300, name="decoder_dense_1")(decoder_input)
+    decoder_dense_layer1 = tensorflow.keras.layers.Dense(units=5000, name="decoder_dense_1")(decoder_input)
     decoder_activ_layer1 = tensorflow.keras.layers.LeakyReLU(name="decoder_leakyrelu_1")(decoder_dense_layer1)
 
     decoder_dense_layer2 = tensorflow.keras.layers.Dense(units=10000, name="decoder_dense_2")(decoder_activ_layer1)
