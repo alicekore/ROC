@@ -1,11 +1,12 @@
+import codecs
+import json
+import os
+import matplotlib.pyplot
+import numpy
+import tensorflow.keras.datasets
 import tensorflow.keras.layers
 import tensorflow.keras.models
 import tensorflow.keras.optimizers
-import tensorflow.keras.datasets
-import numpy
-import matplotlib.pyplot
-import os
-import codecs, json
 from sklearn.model_selection import train_test_split
 
 
@@ -58,13 +59,13 @@ def autoencoder():
     return decoder, encoder, ae
 
 
-def train_AE(ae, x_train, x_test):
+def train_AE(ae, x_train, x_test, learning_rate, epochs):
     # AE Compilation
-    ae.compile(loss="mse", optimizer=tensorflow.keras.optimizers.Adam(lr=0.0005))
+    ae.compile(loss="mse", optimizer=tensorflow.keras.optimizers.Adam(lr=learning_rate))
 
     # Training AE
-    ae.fit(x_train, x_train, epochs=20, batch_size=256, shuffle=True,
-           validation_data=(x_test, x_test))  # validation data <> validation! (validation set)
+    ae.fit(x_train, x_train, epochs=epochs, batch_size=256, shuffle=True,
+           validation_data=(x_test, x_test))
 
 
 def evaluate_model(decoder, encoder, x_train_orig, x_train):
@@ -84,9 +85,3 @@ def evaluate_model(decoder, encoder, x_train_orig, x_train):
         matplotlib.pyplot.imshow(decoded_images_orig[rand_ind, :, :], cmap='jet')
     matplotlib.pyplot.show()
 
-
-if __name__ == "__main__":
-    x_train_orig, x_test_orig, x_train, x_test = prepareDataSet('D:\Alisa\ROC\ROC repo\Autoencoder\Data Set\RandomNegative.json')
-    decoder, encoder, ae = autoencoder()
-    train_AE(ae, x_train, x_test)
-    evaluate_model(decoder, encoder, x_train_orig, x_train)

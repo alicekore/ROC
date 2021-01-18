@@ -1,4 +1,5 @@
 .idea
 *.odt
+__pycache__
 Data Set/
 Experiments/
