@@ -10,14 +10,20 @@ from sklearn.model_selection import train_test_split
 
 
 # Loads the dataset from json file and returns it as reshaped numpy array
-def getDataSet():
-    path = input("Enter the path to data set json file: ")
+def prepareDataSet(path):
+    path = str(path)
     assert os.path.exists(path), "File not found at " + str(path)
 
     obj_text = codecs.open(path, 'r', encoding='utf-8').read()
     raw = json.loads(obj_text)
     set = numpy.array(raw)
-    return set
+
+    x_train_orig, x_test_orig = train_test_split(set, test_size=0.2)
+
+    x_train = numpy.reshape(x_train_orig, newshape=(x_train_orig.shape[0], numpy.prod(x_train_orig.shape[1:])))
+    x_test = numpy.reshape(x_test_orig, newshape=(x_test_orig.shape[0], numpy.prod(x_test_orig.shape[1:])))
+
+    return x_train_orig, x_test_orig, x_train, x_test
 
 
 def autoencoder():
@@ -32,7 +38,6 @@ def autoencoder():
     encoder = tensorflow.keras.models.Model(x, encoder_output, name="encoder_model")
     # encoder.summary()
 
-
     decoder_input = tensorflow.keras.layers.Input(shape=(1000), name="decoder_input")
 
     decoder_dense_layer1 = tensorflow.keras.layers.Dense(units=5000, name="decoder_dense_1")(decoder_input)
@@ -44,28 +49,25 @@ def autoencoder():
     decoder = tensorflow.keras.models.Model(decoder_input, decoder_output, name="decoder_model")
     # decoder.summary()
 
-
     ae_input = tensorflow.keras.layers.Input(shape=(10000), name="AE_input")
     ae_encoder_output = encoder(ae_input)
     ae_decoder_output = decoder(ae_encoder_output)
 
     ae = tensorflow.keras.models.Model(ae_input, ae_decoder_output, name="AE")
     # ae.summary()
+    return decoder, encoder, ae
 
+
+def train_AE(ae, x_train, x_test):
     # AE Compilation
     ae.compile(loss="mse", optimizer=tensorflow.keras.optimizers.Adam(lr=0.0005))
-
-    # Preparing the dataset
-    orig = getDataSet()
-    x_train_orig, x_test_orig = train_test_split(orig, test_size=0.2)
-
-    x_train = numpy.reshape(x_train_orig, newshape=(x_train_orig.shape[0], numpy.prod(x_train_orig.shape[1:])))
-    x_test = numpy.reshape(x_test_orig, newshape=(x_test_orig.shape[0], numpy.prod(x_test_orig.shape[1:])))
 
     # Training AE
     ae.fit(x_train, x_train, epochs=20, batch_size=256, shuffle=True,
            validation_data=(x_test, x_test))  # validation data <> validation! (validation set)
 
+
+def evaluate_model(decoder, encoder, x_train_orig, x_train):
     encoded_images = encoder.predict(x_train)
     decoded_images = decoder.predict(encoded_images)
     decoded_images_orig = numpy.reshape(decoded_images, newshape=(decoded_images.shape[0], 100, 100))
@@ -84,4 +86,7 @@ def autoencoder():
 
 
 if __name__ == "__main__":
-    autoencoder()
+    x_train_orig, x_test_orig, x_train, x_test = prepareDataSet('D:\Alisa\ROC\ROC repo\Autoencoder\Data Set\RandomNegative.json')
+    decoder, encoder, ae = autoencoder()
+    train_AE(ae, x_train, x_test)
+    evaluate_model(decoder, encoder, x_train_orig, x_train)
