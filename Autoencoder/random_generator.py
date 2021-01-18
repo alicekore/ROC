@@ -6,7 +6,7 @@ import json
 np.set_printoptions(threshold=np.inf)
 
 
-def gaussian_2d(center=(50, 50), sig=10, image_size=(100, 100)):
+def gaussian_2d(center, sig, image_size=(100, 100)):
     """
     It produces single gaussian at expected center
     :param center:  the mean position (X, Y) - where high value expected
@@ -20,33 +20,56 @@ def gaussian_2d(center=(50, 50), sig=10, image_size=(100, 100)):
     return kernel
 
 
-def overlap_gauss(image_size=(100, 100)):
+# Creates gauss with SPECIFIED parameters
+def generic_overlap_gauss(centers: tuple, sigs: tuple, image_size=(100, 100), normalize=False, negative=False):
+    if len(centers) != len(sigs):
+        raise ValueError("Amount of center values and sigma values are different!")
+    result = np.zeros(image_size)
+    for i in range(len(sigs)):
+        gauss = gaussian_2d(centers[i], sigs[i])
+        result = np.add(result, gauss)
+    if normalize:
+        norm = np.linalg.norm(result)
+        result = result / norm
+    if negative:
+        result = np.negative(result)
+    return result
+
+
+# Creates RANDOM gauss
+def overlap_gauss(image_size=(100, 100), normalize=False, negative=False):
     result = np.zeros(image_size)
     max = image_size[0]
     loop_size = random.randint(1, 10)
     for i in range(loop_size):
         center = (random.randrange(max), random.randrange(max))
-        sig = random.randrange(5, max / 2)
+        sig = random.randrange(int(max / 10), int(max / 2))
         gauss = gaussian_2d(center, sig)
         result = np.add(result, gauss)
+    if normalize:
+        norm = np.linalg.norm(result)
+        result = result / norm
+    if negative:
+        result = np.negative(result)
     return result
 
 
-def create_data_set(size, shape=(100, 100)):
-    file_name = 'Data Set/Random' + '.json'  # Set the correct path!
-    origs = np.empty((size, shape[0], shape[1]))
-    for i in range(size):
-        field = overlap_gauss(shape)
+def create_data_set(ds_size, file_name, image_size=(100, 100), normalize=False, negative=False):
+    file_name = 'Data Set/' + str(file_name) + '.json'
+    origs = np.empty((ds_size, image_size[0], image_size[1]))
+    for i in range(ds_size):
+        field = overlap_gauss(image_size, normalize, negative)
         origs[i] = field
         print('Done:' + str(i))
-    set = origs.tolist()  # nested lists with same data, indices
-    json.dump(set, codecs.open(file_name, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
+    ds = origs.tolist()  # nested lists with same data, indices
+    json.dump(ds, codecs.open(file_name, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
 
 
-def get_random_image():
-    plt.imshow(overlap_gauss(), cmap='jet')
+def get_random_image(normalize=False, negative=False):
+    plt.imshow(overlap_gauss(normalize=normalize, negative=negative), cmap='jet')
     plt.show()
 
 
 if __name__ == '__main__':
-    create_data_set(10000)
+    plt.imshow(generic_overlap_gauss(centers=((50,50),(20,80)), sigs=(30, 10)), cmap='jet')
+    plt.show()
