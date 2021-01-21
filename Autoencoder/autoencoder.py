@@ -58,6 +58,26 @@ def autoencoder():
     # ae.summary()
     return decoder, encoder, ae
 
+def autoencoder_generic(units):
+    layers = {'encoder_activ_layer0': tensorflow.keras.layers.Input(shape=(units[0]), name="encoder_input")}
+    for i in range(1, len(units)):
+        layers['encoder_dense_layer' + str(i)] = tensorflow.keras.layers.Dense(units=units[i], name="encoder_dense_" + str(i))(layers['encoder_activ_layer' + str(i-1)])
+        layers['encoder_activ_layer' + str(i)] = tensorflow.keras.layers.LeakyReLU(name="encoder_leakyrelu_" + str(i))(layers['encoder_dense_layer' + str(i)])
+    encoder = tensorflow.keras.models.Model(layers['encoder_activ_layer0'], layers['encoder_activ_layer' + str(len(units)-1)], name="encoder_model")
+
+    runits = units[::-1] # Reverse array
+    layers['decoder_activ_layer0'] = tensorflow.keras.layers.Input(shape=(runits[0]), name="decoder_input")
+    for i in range(1, len(runits)):
+        layers['decoder_dense_layer' + str(i)] = tensorflow.keras.layers.Dense(units=runits[i], name="decoder_dense_" + str(i))(layers['decoder_activ_layer' + str(i-1)])
+        layers['decoder_activ_layer' + str(i)] = tensorflow.keras.layers.LeakyReLU(name="decoder_leakyrelu_" + str(i))(layers['decoder_dense_layer' + str(i)])
+    decoder = tensorflow.keras.models.Model(layers['decoder_activ_layer0'], layers['decoder_activ_layer' + str(len(runits)-1)], name="decoder_model")
+
+    ae_input = tensorflow.keras.layers.Input(shape=(units[0]), name="AE_input")
+    ae_encoder_output = encoder(ae_input)
+    ae_decoder_output = decoder(ae_encoder_output)
+    ae = tensorflow.keras.models.Model(ae_input, ae_decoder_output, name="AE")
+    return decoder, encoder, ae
+
 
 def train_AE(ae, x_train, x_test, learning_rate, epochs):
     # AE Compilation
