@@ -1,5 +1,11 @@
 import autoencoder
 import json
+import os
+from datetime import datetime
+
+# Create new experiment directory
+path = "D:/Alisa/ROC/ROC repo/Autoencoder/Experiments/" + datetime.now().strftime('%Y.%m.%d %H-%M-%S')
+os.mkdir(path)
 
 f = open('Experiments/Config1.json')
 params = json.load(f)
