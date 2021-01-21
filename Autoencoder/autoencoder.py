@@ -88,7 +88,7 @@ def train_AE(ae, x_train, x_test, learning_rate, epochs):
            validation_data=(x_test, x_test))
 
 
-def evaluate_model(decoder, encoder, x_train_orig, x_train):
+def evaluate_model(decoder, encoder, x_train_orig, x_train, folder):
     encoded_images = encoder.predict(x_train)
     decoded_images = decoder.predict(encoded_images)
     decoded_images_orig = numpy.reshape(decoded_images, newshape=(decoded_images.shape[0], 100, 100))
@@ -103,5 +103,5 @@ def evaluate_model(decoder, encoder, x_train_orig, x_train):
         matplotlib.pyplot.subplot(num_images_to_show, 2, plot_ind + 1)
         matplotlib.pyplot.axis('off')
         matplotlib.pyplot.imshow(decoded_images_orig[rand_ind, :, :], cmap='jet')
-    matplotlib.pyplot.show()
+    matplotlib.pyplot.savefig(str(folder)+'/random5.png')
 
