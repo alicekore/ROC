@@ -28,7 +28,7 @@ def prepareDataSet(path):
 
 
 def autoencoder():
-    x = tensorflow.keras.layers.Input(shape=(10000), name="encoder_input")
+    x = tensorflow.keras.layers.Input(shape=10000, name="encoder_input")
 
     encoder_dense_layer1 = tensorflow.keras.layers.Dense(units=5000, name="encoder_dense_1")(x)
     encoder_activ_layer1 = tensorflow.keras.layers.LeakyReLU(name="encoder_leakyrelu_1")(encoder_dense_layer1)
@@ -39,7 +39,7 @@ def autoencoder():
     encoder = tensorflow.keras.models.Model(x, encoder_output, name="encoder_model")
     # encoder.summary()
 
-    decoder_input = tensorflow.keras.layers.Input(shape=(1000), name="decoder_input")
+    decoder_input = tensorflow.keras.layers.Input(shape=1000, name="decoder_input")
 
     decoder_dense_layer1 = tensorflow.keras.layers.Dense(units=5000, name="decoder_dense_1")(decoder_input)
     decoder_activ_layer1 = tensorflow.keras.layers.LeakyReLU(name="decoder_leakyrelu_1")(decoder_dense_layer1)
@@ -50,7 +50,7 @@ def autoencoder():
     decoder = tensorflow.keras.models.Model(decoder_input, decoder_output, name="decoder_model")
     # decoder.summary()
 
-    ae_input = tensorflow.keras.layers.Input(shape=(10000), name="AE_input")
+    ae_input = tensorflow.keras.layers.Input(shape=10000, name="AE_input")
     ae_encoder_output = encoder(ae_input)
     ae_decoder_output = decoder(ae_encoder_output)
 
@@ -58,19 +58,28 @@ def autoencoder():
     # ae.summary()
     return decoder, encoder, ae
 
+
 def autoencoder_generic(units):
     layers = {'encoder_activ_layer0': tensorflow.keras.layers.Input(shape=(units[0]), name="encoder_input")}
     for i in range(1, len(units)):
-        layers['encoder_dense_layer' + str(i)] = tensorflow.keras.layers.Dense(units=units[i], name="encoder_dense_" + str(i))(layers['encoder_activ_layer' + str(i-1)])
-        layers['encoder_activ_layer' + str(i)] = tensorflow.keras.layers.LeakyReLU(name="encoder_leakyrelu_" + str(i))(layers['encoder_dense_layer' + str(i)])
-    encoder = tensorflow.keras.models.Model(layers['encoder_activ_layer0'], layers['encoder_activ_layer' + str(len(units)-1)], name="encoder_model")
+        layers['encoder_dense_layer' + str(i)] = tensorflow.keras.layers.Dense(units=units[i],
+                                                                               name="encoder_dense_" + str(i))(
+            layers['encoder_activ_layer' + str(i - 1)])
+        layers['encoder_activ_layer' + str(i)] = tensorflow.keras.layers.LeakyReLU(name="encoder_leakyrelu_" + str(i))(
+            layers['encoder_dense_layer' + str(i)])
+    encoder = tensorflow.keras.models.Model(layers['encoder_activ_layer0'],
+                                            layers['encoder_activ_layer' + str(len(units) - 1)], name="encoder_model")
 
-    runits = units[::-1] # Reverse array
+    runits = units[::-1]  # Reverse array
     layers['decoder_activ_layer0'] = tensorflow.keras.layers.Input(shape=(runits[0]), name="decoder_input")
     for i in range(1, len(runits)):
-        layers['decoder_dense_layer' + str(i)] = tensorflow.keras.layers.Dense(units=runits[i], name="decoder_dense_" + str(i))(layers['decoder_activ_layer' + str(i-1)])
-        layers['decoder_activ_layer' + str(i)] = tensorflow.keras.layers.LeakyReLU(name="decoder_leakyrelu_" + str(i))(layers['decoder_dense_layer' + str(i)])
-    decoder = tensorflow.keras.models.Model(layers['decoder_activ_layer0'], layers['decoder_activ_layer' + str(len(runits)-1)], name="decoder_model")
+        layers['decoder_dense_layer' + str(i)] = tensorflow.keras.layers.Dense(units=runits[i],
+                                                                               name="decoder_dense_" + str(i))(
+            layers['decoder_activ_layer' + str(i - 1)])
+        layers['decoder_activ_layer' + str(i)] = tensorflow.keras.layers.LeakyReLU(name="decoder_leakyrelu_" + str(i))(
+            layers['decoder_dense_layer' + str(i)])
+    decoder = tensorflow.keras.models.Model(layers['decoder_activ_layer0'],
+                                            layers['decoder_activ_layer' + str(len(runits) - 1)], name="decoder_model")
 
     ae_input = tensorflow.keras.layers.Input(shape=(units[0]), name="AE_input")
     ae_encoder_output = encoder(ae_input)
@@ -79,13 +88,29 @@ def autoencoder_generic(units):
     return decoder, encoder, ae
 
 
-def train_AE(ae, x_train, x_test, learning_rate, epochs):
+def train_AE(ae, x_train, x_test, learning_rate, epochs, folder):
     # AE Compilation
     ae.compile(loss="mse", optimizer=tensorflow.keras.optimizers.Adam(lr=learning_rate))
 
     # Training AE
-    ae.fit(x_train, x_train, epochs=epochs, batch_size=256, shuffle=True,
-           validation_data=(x_test, x_test))
+    my_callbacks = [
+        tensorflow.keras.callbacks.EarlyStopping(patience=2),
+        tensorflow.keras.callbacks.ModelCheckpoint(filepath=str(folder) + '/model.{epoch:02d}-{val_loss:.2f}.h5',
+                                                   monitor='loss', verbose=1,
+                                                   save_best_only=True, mode='auto', period=1),
+        tensorflow.keras.callbacks.TensorBoard(log_dir=str(folder), profile_batch=100000000),
+    ]
+    history = ae.fit(x_train, x_train, epochs=epochs, batch_size=256, shuffle=True,
+                     validation_data=(x_test, x_test), callbacks=my_callbacks)
+
+    # print(history.history.keys())
+    matplotlib.pyplot.plot(history.history['loss'])
+    matplotlib.pyplot.plot(history.history['val_loss'])
+    matplotlib.pyplot.title('model loss')
+    matplotlib.pyplot.ylabel('loss')
+    matplotlib.pyplot.xlabel('epoch')
+    matplotlib.pyplot.legend(['train', 'test'], loc='upper left')
+    matplotlib.pyplot.savefig(str(folder) + '/loss.png')
 
 
 def evaluate_model(decoder, encoder, x_train_orig, x_train, folder):
@@ -103,5 +128,4 @@ def evaluate_model(decoder, encoder, x_train_orig, x_train, folder):
         matplotlib.pyplot.subplot(num_images_to_show, 2, plot_ind + 1)
         matplotlib.pyplot.axis('off')
         matplotlib.pyplot.imshow(decoded_images_orig[rand_ind, :, :], cmap='jet')
-    matplotlib.pyplot.savefig(str(folder)+'/random5.png')
-
+    matplotlib.pyplot.savefig(str(folder) + '/random5.png')
