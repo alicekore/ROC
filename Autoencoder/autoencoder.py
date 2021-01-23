@@ -119,13 +119,23 @@ def evaluate_model(decoder, encoder, x_train_orig, x_train, folder):
     decoded_images_orig = numpy.reshape(decoded_images, newshape=(decoded_images.shape[0], 100, 100))
 
     num_images_to_show = 5
+    plot_ind = 1
     for im_ind in range(num_images_to_show):
-        plot_ind = im_ind * 2 + 1
         rand_ind = numpy.random.randint(low=0, high=x_train.shape[0])
-        matplotlib.pyplot.subplot(num_images_to_show, 2, plot_ind)
+
+        matplotlib.pyplot.subplot(num_images_to_show, 3, plot_ind)
         matplotlib.pyplot.axis('off')
         matplotlib.pyplot.imshow(x_train_orig[rand_ind, :, :], cmap='jet')
-        matplotlib.pyplot.subplot(num_images_to_show, 2, plot_ind + 1)
+        plot_ind = plot_ind+1
+
+        matplotlib.pyplot.subplot(num_images_to_show, 3, plot_ind)
         matplotlib.pyplot.axis('off')
         matplotlib.pyplot.imshow(decoded_images_orig[rand_ind, :, :], cmap='jet')
+        plot_ind = plot_ind + 1
+
+        matplotlib.pyplot.subplot(num_images_to_show, 3, plot_ind)
+        matplotlib.pyplot.axis('off')
+        matplotlib.pyplot.imshow(numpy.subtract(x_train_orig[rand_ind, :, :], decoded_images_orig[rand_ind, :, :]), cmap='jet')
+        plot_ind = plot_ind + 1
+
     matplotlib.pyplot.savefig(str(folder) + '/random5.png')
