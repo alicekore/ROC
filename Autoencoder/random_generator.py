@@ -55,7 +55,7 @@ def overlap_gauss(image_size=(100, 100), normalize=False, negative=False):
 
 
 def create_data_set(ds_size, file_name, image_size=(100, 100), normalize=False, negative=False):
-    file_name = 'Data Set/' + str(file_name) + '.json'
+    file_name = 'D:/Alisa/ROC/ROC repo/Data Set/' + str(file_name) + '.json'
     origs = np.empty((ds_size, image_size[0], image_size[1]))
     for i in range(ds_size):
         field = overlap_gauss(image_size, normalize, negative)
@@ -64,6 +64,22 @@ def create_data_set(ds_size, file_name, image_size=(100, 100), normalize=False, 
     ds = origs.tolist()  # nested lists with same data, indices
     json.dump(ds, codecs.open(file_name, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
 
+# Create mixed data set with positive and negative gaussians. Param 'negative': part of negatives in %, not bool!
+def create_mixed_data_set(ds_size, file_name, image_size=(100, 100), normalize=False, negative=0.5):
+    file_name = 'D:/Alisa/ROC/ROC repo/Data Set/' + str(file_name) + '.json'
+    origs = np.empty((ds_size, image_size[0], image_size[1]))
+    neg = int(ds_size * negative)
+    for i in range(neg):
+        field = overlap_gauss(image_size, normalize, negative=True)
+        origs[i] = field
+        print('Done:' + str(i))
+    for i in range(neg+1, ds_size):
+        field = overlap_gauss(image_size, normalize, negative=False)
+        origs[i] = field
+        print('Done:' + str(i))
+    np.random.shuffle(origs)
+    ds = origs.tolist()  # nested lists with same data, indices
+    json.dump(ds, codecs.open(file_name, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
 
 def get_random_image(normalize=False, negative=False):
     plt.imshow(overlap_gauss(normalize=normalize, negative=negative), cmap='jet')
@@ -71,5 +87,4 @@ def get_random_image(normalize=False, negative=False):
 
 
 if __name__ == '__main__':
-    plt.imshow(generic_overlap_gauss(centers=((50,50),(20,80)), sigs=(30, 10)), cmap='jet')
-    plt.show()
+    create_mixed_data_set(10000, 'RandomMix', normalize=True, negative=0.5)
