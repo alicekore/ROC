@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import json
 
 np.random.seed(111)
-data = json.load(open('D:/Alisa/ROC/ROC repo/CNN/Experiments/results.json'))
+data = json.load(open('//Experiments/results.json'))
 results = []
 labels = []
 for i in range(len(data)):

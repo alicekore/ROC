@@ -26,7 +26,7 @@ def generic_overlap_gauss(centers: tuple, sigs: tuple, image_size=(100, 100), no
         raise ValueError("Amount of center values and sigma values are different!")
     result = np.zeros(image_size)
     for i in range(len(sigs)):
-        gauss = gaussian_2d(centers[i], sigs[i])
+        gauss = gaussian_2d(centers[i], sigs[i], image_size)
         result = np.add(result, gauss)
     if normalize:
         norm = np.linalg.norm(result)
@@ -44,7 +44,7 @@ def overlap_gauss(image_size=(100, 100), normalize=False, negative=False):
     for i in range(loop_size):
         center = (random.randrange(max), random.randrange(max))
         sig = random.randrange(int(max / 10), int(max / 2))
-        gauss = gaussian_2d(center, sig)
+        gauss = gaussian_2d(center, sig, image_size)
         result = np.add(result, gauss)
     if normalize:
         norm = np.linalg.norm(result)
@@ -87,4 +87,4 @@ def get_random_image(normalize=False, negative=False):
 
 
 if __name__ == '__main__':
-    create_mixed_data_set(10000, 'RandomMix', normalize=True, negative=0.5)
+    create_mixed_data_set(10000, 'RandomMix28', normalize=True, negative=0.5, image_size=(28, 28))

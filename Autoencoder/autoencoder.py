@@ -98,7 +98,7 @@ def train_AE(ae, x_train, x_test, learning_rate, epochs, folder):
         tensorflow.keras.callbacks.ModelCheckpoint(filepath=str(folder) + '/model.{epoch:02d}-{val_loss:.10f}.h5',
                                                    monitor='loss', verbose=1,
                                                    save_best_only=True, mode='auto', period=1),
-        tensorflow.keras.callbacks.TensorBoard(log_dir=str(folder), profile_batch=100000000),
+        # tensorflow.keras.callbacks.TensorBoard(log_dir=str(folder), profile_batch=100000000),
     ]
     history = ae.fit(x_train, x_train, epochs=epochs, batch_size=256, shuffle=True,
                      validation_data=(x_test, x_test), callbacks=my_callbacks)
