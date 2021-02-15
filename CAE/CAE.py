@@ -1,4 +1,8 @@
 import keras
+import tensorflow.keras.datasets
+import tensorflow.keras.layers
+import tensorflow.keras.models
+import tensorflow.keras.optimizers
 from keras import layers
 import numpy
 import os
@@ -45,32 +49,43 @@ def CAE(x_train, x_test, folder, epochs, learning_rate, units):
 
     decoded = layers.Conv2D(1, (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(x)"""
 
-    x = layers.Conv2D(units[0], (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(input_img)
+    x = layers.Conv2D(units[0], (3, 3),  padding='same')(input_img)
+    x = LeakyReLU(alpha=0.3)(x)
     for i in range(1, len(units)):
         x = layers.MaxPooling2D((2, 2), padding='same')(x)
-        x = layers.Conv2D(units[i], (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(x)
+        x = layers.Conv2D(units[i], (3, 3), padding='same')(x)
+        x = LeakyReLU(alpha=0.3)(x)
     encoded = layers.MaxPooling2D((2, 2), padding='same')(x)
 
     runits = units[::-1]  # Reverse array
-    x = layers.Conv2D(runits[0], (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(encoded)
+    x = layers.Conv2D(runits[0], (3, 3), padding='same')(encoded)
+    x = LeakyReLU(alpha=0.3)(x)
     x = layers.UpSampling2D((2, 2))(x)
     for i in range(1, len(runits)):
-        x = layers.Conv2D(runits[i], (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(x)
+        x = layers.Conv2D(runits[i], (3, 3), padding='same')(x)
+        x = LeakyReLU(alpha=0.3)(x)
         x = layers.UpSampling2D((2, 2))(x)
 
-    decoded = layers.Conv2D(1, (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(x)
+    decoded = layers.Conv2D(1, (3, 3), padding='same')(x)
+    decoded = LeakyReLU(alpha=0.3)(decoded)
     crop_factor = int((numpy.ceil(100 / 2 ** len(units)) * 2 ** len(units) - 100) / 2)
     decoded_cropping = layers.Cropping2D((crop_factor, crop_factor))(decoded)
 
     autoencoder = keras.Model(input_img, decoded_cropping)
-    autoencoder.summary()
     autoencoder.compile(optimizer=keras.optimizers.Adam(lr=learning_rate), loss='mse')
-
+    my_callbacks = [
+        tensorflow.keras.callbacks.EarlyStopping(patience=10),
+        tensorflow.keras.callbacks.ModelCheckpoint(filepath=str(folder) + '/model.{epoch:02d}-{val_loss:.10f}.h5',
+                                                   monitor='loss', verbose=1,
+                                                   save_best_only=True, mode='auto', period=1),
+        # tensorflow.keras.callbacks.TensorBoard(log_dir=str(folder), profile_batch=100000000),
+    ]
     autoencoder.fit(x_train, x_train,
                     epochs=epochs,
                     batch_size=128,
                     shuffle=True,
-                    validation_data=(x_test, x_test))
+                    validation_data=(x_test, x_test),
+                    callbacks=my_callbacks)
 
     decoded_imgs = autoencoder.predict(x_train)
 
