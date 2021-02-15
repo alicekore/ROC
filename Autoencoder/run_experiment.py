@@ -21,15 +21,6 @@ def run_experiment(config):
     loss, val_loss = autoencoder.train_AE(ae, x_train, x_test, params['learning_rate'], params['epochs'], path)
     autoencoder.evaluate_model(decoder, encoder, x_train_orig, x_train, path)
 
-    result = {"date": time,
-              "ds_path": params['ds_path'],
-              "units": params['units'],
-              "learning rate": params['learning_rate'],
-              "epochs": params['epochs'],
-              "loss": loss,
-              "val_loss": val_loss
-              }
-
     data = json.load(open('D:/Alisa/ROC/ROC repo/Autoencoder/Experiments/results.json'))
     if type(data) is dict:
         data = [data]

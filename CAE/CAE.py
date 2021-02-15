@@ -80,7 +80,7 @@ def CAE(x_train, x_test, folder, epochs, learning_rate, units):
                                                    save_best_only=True, mode='auto', period=1),
         # tensorflow.keras.callbacks.TensorBoard(log_dir=str(folder), profile_batch=100000000),
     ]
-    autoencoder.fit(x_train, x_train,
+    history = autoencoder.fit(x_train, x_train,
                     epochs=epochs,
                     batch_size=128,
                     shuffle=True,
@@ -112,3 +112,5 @@ def CAE(x_train, x_test, folder, epochs, learning_rate, units):
 
     plt.savefig(str(folder) + '/random5.png')
     plt.clf()
+
+    return history
