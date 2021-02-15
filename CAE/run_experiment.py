@@ -17,7 +17,7 @@ def run_experiment(config):
     params = json.load(f)
 
     x_train_orig, x_test_orig, x_train, x_test = CAE.prepareDataSet(params['ds_path'])
-    CAE.CAE(x_train, x_test, path, params['epochs'])
+    CAE.CAE(x_train, x_test, path, params['epochs'], params['learning_rate'], params['units'])
 
 
 if __name__ == '__main__':
