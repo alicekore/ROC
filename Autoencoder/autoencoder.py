@@ -125,6 +125,8 @@ def evaluate_model(decoder, encoder, x_train_orig, x_train, folder):
     for im_ind in range(num_images_to_show):
         rand_ind = numpy.random.randint(low=0, high=x_train.shape[0])
 
+        matplotlib.pyplot.suptitle("Original          Recreated           Error", fontsize=12)
+
         matplotlib.pyplot.subplot(num_images_to_show, 3, plot_ind)
         matplotlib.pyplot.axis('off')
         matplotlib.pyplot.imshow(x_train_orig[rand_ind, :, :], cmap='jet')
@@ -135,11 +137,14 @@ def evaluate_model(decoder, encoder, x_train_orig, x_train, folder):
         matplotlib.pyplot.imshow(decoded_images_orig[rand_ind, :, :], cmap='jet')
         plot_ind = plot_ind + 1
 
+        diff = numpy.subtract(x_train_orig[rand_ind, :, :], decoded_images_orig[rand_ind, :, :])
+        error = numpy.mean(numpy.absolute(diff))
         matplotlib.pyplot.subplot(num_images_to_show, 3, plot_ind)
         matplotlib.pyplot.axis('off')
-        matplotlib.pyplot.imshow(numpy.subtract(x_train_orig[rand_ind, :, :], decoded_images_orig[rand_ind, :, :]),
-                                 cmap='jet')
+        matplotlib.pyplot.title('{:.2f}e-5'.format(error / 1e-5), fontsize=8)
+        matplotlib.pyplot.imshow(diff, cmap='gray')
         plot_ind = plot_ind + 1
 
-    matplotlib.pyplot.savefig(str(folder) + '/random5.png')
+    matplotlib.pyplot.subplots_adjust(hspace=0.5, wspace=-0.5)
+    matplotlib.pyplot.savefig(str(folder) + '/random5.png', dpi=300)
     matplotlib.pyplot.clf()

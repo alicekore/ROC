@@ -40,11 +40,4 @@ def run_experiment(config):
 
 
 if __name__ == '__main__':
-    run_experiment('D:\Alisa\ROC\ROC repo\Autoencoder\Experiments\Config1.json')
-    run_experiment('D:\Alisa\ROC\ROC repo\Autoencoder\Experiments\Config2.json')
-    run_experiment('D:\Alisa\ROC\ROC repo\Autoencoder\Experiments\Config3.json')
-    run_experiment('D:\Alisa\ROC\ROC repo\Autoencoder\Experiments\Config4.json')
-    run_experiment('D:\Alisa\ROC\ROC repo\Autoencoder\Experiments\Config5.json')
-    run_experiment('D:\Alisa\ROC\ROC repo\Autoencoder\Experiments\Config6.json')
-    run_experiment('D:\Alisa\ROC\ROC repo\Autoencoder\Experiments\Config7.json')
-    run_experiment('D:\Alisa\ROC\ROC repo\Autoencoder\Experiments\Config8.json')
+    run_experiment('D:\Alisa\ROC\ROC repo\Autoencoder\Experiments\Config9.json')

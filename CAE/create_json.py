@@ -2,8 +2,8 @@ import json
 
 params = {
     'ds_path': 'D:\Alisa\ROC\ROC repo\Data Set\RandomMix.json',
-    'units': [16, 16, 8, 8],
-    'epochs': 5,
+    'units': [32, 16, 8],
+    'epochs': 100,
     'learning_rate': 0.0005,
 }
 

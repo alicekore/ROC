@@ -49,7 +49,7 @@ def CAE(x_train, x_test, folder, epochs, learning_rate, units):
 
     decoded = layers.Conv2D(1, (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(x)"""
 
-    x = layers.Conv2D(units[0], (3, 3),  padding='same')(input_img)
+    x = layers.Conv2D(units[0], (3, 3), padding='same')(input_img)
     x = LeakyReLU(alpha=0.3)(x)
     for i in range(1, len(units)):
         x = layers.MaxPooling2D((2, 2), padding='same')(x)
@@ -81,11 +81,11 @@ def CAE(x_train, x_test, folder, epochs, learning_rate, units):
         # tensorflow.keras.callbacks.TensorBoard(log_dir=str(folder), profile_batch=100000000),
     ]
     history = autoencoder.fit(x_train, x_train,
-                    epochs=epochs,
-                    batch_size=128,
-                    shuffle=True,
-                    validation_data=(x_test, x_test),
-                    callbacks=my_callbacks)
+                              epochs=epochs,
+                              batch_size=128,
+                              shuffle=True,
+                              validation_data=(x_test, x_test),
+                              callbacks=my_callbacks)
 
     decoded_imgs = autoencoder.predict(x_train)
 
@@ -93,6 +93,8 @@ def CAE(x_train, x_test, folder, epochs, learning_rate, units):
     plot_ind = 1
     for im_ind in range(num_images_to_show):
         rand_ind = numpy.random.randint(low=0, high=x_train.shape[0])
+
+        plt.suptitle("Original          Recreated           Error", fontsize=12)
 
         plt.subplot(num_images_to_show, 3, plot_ind)
         plt.axis('off')
@@ -104,13 +106,16 @@ def CAE(x_train, x_test, folder, epochs, learning_rate, units):
         plt.imshow(decoded_imgs[rand_ind, :, :], cmap='jet')
         plot_ind = plot_ind + 1
 
+        diff = numpy.subtract(x_train[rand_ind, :, :], decoded_imgs[rand_ind, :, :])
+        error = numpy.mean(numpy.absolute(diff))
         plt.subplot(num_images_to_show, 3, plot_ind)
         plt.axis('off')
-        plt.imshow(numpy.subtract(x_train[rand_ind, :, :], decoded_imgs[rand_ind, :, :]),
-                   cmap='jet')
+        plt.title('{:.2f}e-5'.format(error/1e-5), fontsize=8)
+        plt.imshow(diff, cmap='gray')
         plot_ind = plot_ind + 1
 
-    plt.savefig(str(folder) + '/random5.png')
+    plt.subplots_adjust(hspace=0.5, wspace=-0.5)
+    plt.savefig(str(folder) + '/random5.png', dpi=300)
     plt.clf()
 
     return history
