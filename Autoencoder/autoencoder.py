@@ -103,16 +103,7 @@ def train_AE(ae, x_train, x_test, learning_rate, epochs, folder):
     history = ae.fit(x_train, x_train, epochs=epochs, batch_size=256, shuffle=True,
                      validation_data=(x_test, x_test), callbacks=my_callbacks)
 
-    # print(history.history.keys())
-    matplotlib.pyplot.plot(history.history['loss'])
-    matplotlib.pyplot.plot(history.history['val_loss'])
-    matplotlib.pyplot.title('model loss')
-    matplotlib.pyplot.ylabel('loss')
-    matplotlib.pyplot.xlabel('epoch')
-    matplotlib.pyplot.legend(['train', 'test'], loc='upper left')
-    matplotlib.pyplot.savefig(str(folder) + '/loss.png')
-    matplotlib.pyplot.clf()
-    return (history.history['loss'], history.history['val_loss'])
+    return history
 
 
 def evaluate_model(decoder, encoder, x_train_orig, x_train, folder):
@@ -148,3 +139,10 @@ def evaluate_model(decoder, encoder, x_train_orig, x_train, folder):
     matplotlib.pyplot.subplots_adjust(hspace=0.5, wspace=-0.5)
     matplotlib.pyplot.savefig(str(folder) + '/random5.png', dpi=300)
     matplotlib.pyplot.clf()
+
+    error = 0
+    for i in range(len(x_train_orig)):
+        diff = numpy.subtract(x_train_orig[i, :, :], decoded_images_orig[i, :, :])
+        error = error + numpy.mean(numpy.absolute(diff))
+    avg_error = error / len(x_train_orig)
+    return avg_error

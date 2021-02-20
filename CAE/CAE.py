@@ -31,23 +31,6 @@ def prepareDataSet(path):
 
 def CAE(x_train, x_test, folder, epochs, learning_rate, units):
     input_img = keras.Input(shape=(100, 100, 1))
-    """x = layers.Conv2D(16, (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(input_img)
-
-    x = layers.MaxPooling2D((2, 2), padding='same')(x)
-    x = layers.Conv2D(8, (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(x)
-    x = layers.MaxPooling2D((2, 2), padding='same')(x)
-    x = layers.Conv2D(8, (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(x)
-
-    encoded = layers.MaxPooling2D((2, 2), padding='same')(x)
-
-    x = layers.Conv2D(8, (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(encoded)
-    x = layers.UpSampling2D((2, 2))(x)
-    x = layers.Conv2D(8, (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(x)
-    x = layers.UpSampling2D((2, 2))(x)
-    x = layers.Conv2D(16, (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(x)
-    x = layers.UpSampling2D((2, 2))(x)
-
-    decoded = layers.Conv2D(1, (3, 3), activation=LeakyReLU(alpha=0.3), padding='same')(x)"""
 
     x = layers.Conv2D(units[0], (3, 3), padding='same')(input_img)
     x = LeakyReLU(alpha=0.3)(x)
@@ -118,4 +101,9 @@ def CAE(x_train, x_test, folder, epochs, learning_rate, units):
     plt.savefig(str(folder) + '/random5.png', dpi=300)
     plt.clf()
 
-    return history
+    error = 0
+    for i in range(len(x_train)):
+        diff = numpy.subtract(x_train[i, :, :], decoded_imgs[i, :, :])
+        error = error + numpy.mean(numpy.absolute(diff))
+    avg_error = error / len(x_train)
+    return history, avg_error
